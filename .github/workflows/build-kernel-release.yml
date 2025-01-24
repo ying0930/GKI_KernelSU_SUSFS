@@ -1,29 +1,29 @@
 name: Build and Release GKI Kernels
 
 permissions:
-  contents: write  # Allow writing to repository contents (for pushing tags)
-  actions: write   # Allows triggering actions
-  
+  contents: write # Allow writing to repository contents (for pushing tags)
+  actions: write # Allows triggering actions
+
 on:
   workflow_dispatch:
     inputs:
       build_a12:
-        description: 'Build Android 12 kernel?'
+        description: "Build Android 12 kernel?"
         required: true
         type: boolean
         default: true
       build_a13:
-        description: 'Build Android 13 kernel?'
+        description: "Build Android 13 kernel?"
         required: true
         type: boolean
         default: true
       build_a14:
-        description: 'Build Android 14 kernel?'
+        description: "Build Android 14 kernel?"
         required: true
         type: boolean
         default: true
       make_release:
-        description: 'Do you want to create a release?'
+        description: "Do you want to create a release?"
         required: true
         type: boolean
         default: false
@@ -57,28 +57,28 @@ jobs:
   trigger-release:
     runs-on: ubuntu-latest
     needs:
-        - build-kernel-a12-5-10
-        - build-kernel-a13-5-10
-        - build-kernel-a13-5-15
-        - build-kernel-a14-5-15
-        - build-kernel-a14-6-1
+      - build-kernel-a12-5-10
+      - build-kernel-a13-5-10
+      - build-kernel-a13-5-15
+      - build-kernel-a14-5-15
+      - build-kernel-a14-6-1
     if: ${{ inputs.make_release }}
     env:
       REPO_OWNER: TheWildJames
       REPO_NAME: GKI_KernelSU_SUSFS
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      RELEASE_NAME: "*TEST BUILD* GKI Kernels With KernelSU Next & SUSFS v1.5.3 *TEST BUILD*"
+      RELEASE_NAME: "PLEASE DONT USE, I DONT TEST IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!1 *TEST BUILD* GKI Kernels With KernelSU with Magic Mount & SUSFS v1.5.3 *TEST BUILD*"
       RELEASE_NOTES: |
-        This release contains KernelSU and SUSFS v1.5.3
-        
+        This release contains KernelSU with Magic Mount and SUSFS v1.5.3
+
         Module: 
         -> https://github.com/sidex15/ksu_module_susfs
-        
+
         Official Manager:
         -> https://github.com/tiann/KernelSU
-        
+
         Features:
-        [+] KernelSU
+        [+] KernelSU with Magic Mount
         [+] SUSFS v1.5.3
         [+] Wireguard Support
         [+] Maphide LineageOS Detections
@@ -91,6 +91,7 @@ jobs:
         sidex15 - Created module!
         backslashxx - Helped with patches!
         幕落 - Donation!
+        5ec1cff - Magic Mooooooooount!
 
         If you have contributed and are not here please remind me!
     steps:
@@ -101,24 +102,24 @@ jobs:
       # Get the Latest Tag from GitHub
       - name: Generate and Create New Tag
         run: |
-            # Fetch the latest tag from GitHub (this is the latest tag based on the GitHub API)
-            LATEST_TAG=$(gh api repos/$REPO_OWNER/$REPO_NAME/tags --jq '.[0].name')
-            if [ -z "$LATEST_TAG" ]; then
-              LATEST_TAG="v1.5.3-0"  # Default to v1.5.3-0 if no tag exists
-            fi
+          # Fetch the latest tag from GitHub (this is the latest tag based on the GitHub API)
+          LATEST_TAG=$(gh api repos/$REPO_OWNER/$REPO_NAME/tags --jq '.[0].name')
+          if [ -z "$LATEST_TAG" ]; then
+            LATEST_TAG="v1.5.3-0"  # Default to v1.5.3-0 if no tag exists
+          fi
 
-            # Increment the suffix (e.g., v1.5.3-0 becomes v1.5.3-1)
-            NEW_TAG=$(echo "$LATEST_TAG" | awk -F- '{suffix=$2; if (!suffix) suffix=0; suffix++; printf "%s-%d", $1, suffix}')
-    
-            # Output the new tag to be used
-            echo "New tag: $NEW_TAG"
-    
-            # Set the new tag as an environment variable to be used in later steps
-            echo "NEW_TAG=${NEW_TAG}" >> $GITHUB_ENV
+          # Increment the suffix (e.g., v1.5.3-0 becomes v1.5.3-1)
+          NEW_TAG=$(echo "$LATEST_TAG" | awk -F- '{suffix=$2; if (!suffix) suffix=0; suffix++; printf "%s-%d", $1, suffix}')
 
-            # Create the tag in the repository
-            git tag $NEW_TAG
-            git push origin $NEW_TAG
+          # Output the new tag to be used
+          echo "New tag: $NEW_TAG"
+
+          # Set the new tag as an environment variable to be used in later steps
+          echo "NEW_TAG=${NEW_TAG}" >> $GITHUB_ENV
+
+          # Create the tag in the repository
+          git tag $NEW_TAG
+          git push origin $NEW_TAG
 
       # Download Artifacts for A12 (Only if A12 Build is successful or input is true or empty)
       - name: Download Artifacts
@@ -130,10 +131,10 @@ jobs:
       - name: Create GitHub Release
         uses: actions/create-release@v1
         with:
-          tag_name: ${{ env.NEW_TAG }}  # Use the generated tag for the release
-          prerelease: true  # Mark the release as a pre-release
-          release_name: ${{ env.RELEASE_NAME }}  # Pass the RELEASE_NAME to the action
-          body: ${{ env.RELEASE_NOTES }}  # Pass the RELEASE_NOTES to the action
+          tag_name: ${{ env.NEW_TAG }} # Use the generated tag for the release
+          prerelease: true # Mark the release as a pre-release
+          release_name: ${{ env.RELEASE_NAME }} # Pass the RELEASE_NAME to the action
+          body: ${{ env.RELEASE_NOTES }} # Pass the RELEASE_NOTES to the action
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -153,7 +154,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NEW_TAG: ${{ env.NEW_TAG }}
-
 
       # Display Files Uploaded
       - name: Display Files Uploaded
